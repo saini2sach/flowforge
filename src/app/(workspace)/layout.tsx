@@ -1,6 +1,7 @@
 
 import type { ReactNode } from "react";
 import Link from "next/link";
+import WorkspaceNav from "@/components/layout/workspace-nav";
 
 export default function WorkspaceLayout({
     children,
@@ -23,20 +24,7 @@ export default function WorkspaceLayout({
                     Workspace
                 </p>
 
-                <nav aria-label="Workspace navigation" className="space-y-1">
-                    <Link
-                        href="/dashboard"
-                        className="block rounded-lg px-3 py-2.5 text-sm font-medium text-slate-600 hover:bg-slate-50"
-                    >
-                        Dashboard
-                    </Link>
-                    <Link
-                        href="/projects"
-                        className="block rounded-lg px-3 py-2.5 text-sm font-medium text-slate-600 hover:bg-slate-50"
-                    >
-                        Projects
-                    </Link>
-                </nav>
+                <WorkspaceNav />
 
                 <div className="mt-auto rounded-xl bg-slate-50 p-4">
                     <p className="text-sm font-semibold">Your workspace</p>

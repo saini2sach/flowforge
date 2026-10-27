@@ -8,7 +8,7 @@ export default function ProjectsPage() {
                 Projects
             </h1>
             <p className="mt-3 text-slate-600">
-                Manage your team's projects in one place.
+                Manage your teams projects in one place.
             </p>
         </main>
     );
