@@ -145,35 +145,48 @@ export default async function DashboardPage({
 
 
         <div className="overflow-x-auto">
-          <table className="w-full min-w-[650px] text-left text-sm">
-            <thead className="bg-slate-50 text-xs uppercase tracking-wide text-slate-500">
-              <tr>
-                <th className="px-6 py-3 font-medium">Task</th>
-                <th className="px-6 py-3 font-medium">Status</th>
-                <th className="px-6 py-3 font-medium">Priority</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-100">
-              {tasks.map((task) => (
-                <tr key={task.title} className="hover:bg-slate-50">
-                  <td className="px-6 py-4">
-                    <p className="font-medium">{task.title}</p>
-                    <p className="mt-1 text-xs text-slate-500">
-                      {task.project}
-                    </p>
-                  </td>
-                  <td className="px-6 py-4">
-                    <span className="whitespace-nowrap rounded-full bg-slate-100 px-2.5 py-1 text-xs font-medium text-slate-700">
-                      {task.status}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4 text-slate-600">
-                    {task.priority}
-                  </td>
+          {tasks.length === 0 ? (
+            <div className="rounded-xl  p-8 text-center">
+              <h3 className="font-semibold">No tasks found</h3>
+              <p className="mt-2 text-sm text-gray-500">
+                Try changing your search or status filter.
+              </p>
+            </div>
+          ) : (
+            <table className="w-full min-w-[650px] text-left text-sm">
+              <thead className="bg-slate-50 text-xs uppercase tracking-wide text-slate-500">
+                <tr>
+                  <th className="px-6 py-3 font-medium">Task</th>
+                  <th className="px-6 py-3 font-medium">Status</th>
+                  <th className="px-6 py-3 font-medium">Priority</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+
+
+              <tbody className="divide-y divide-slate-100">
+                {tasks.map((task) => (
+                  <tr key={task.title} className="hover:bg-slate-50">
+                    <td className="px-6 py-4">
+                      <p className="font-medium">{task.title}</p>
+                      <p className="mt-1 text-xs text-slate-500">
+                        {task.project}
+                      </p>
+                    </td>
+                    <td className="px-6 py-4">
+                      <span className="whitespace-nowrap rounded-full bg-slate-100 px-2.5 py-1 text-xs font-medium text-slate-700">
+                        {task.status}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4 text-slate-600">
+                      {task.priority}
+                    </td>
+                  </tr>
+                ))
+                }
+              </tbody>
+            </table>
+          )}
+
         </div>
       </section>
       <TaskSearch />

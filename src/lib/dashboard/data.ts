@@ -72,8 +72,6 @@ export async function getDashboardStats(): Promise<DashboardStat[]> {
     return stats;
 }
 
-
-
 import type {
     PaginatedTasks,
     TaskFilters,
@@ -90,6 +88,16 @@ export async function getPaginatedTasks(
         pageSize = 5,
     } = filters;
 
+
+    const requestedPage = Number.isSafeInteger(page) && page > 0
+        ? page
+        : 1;
+
+    const safePageSize =
+        Number.isSafeInteger(pageSize) && pageSize > 0
+            ? Math.min(pageSize, 100)
+            : 5;
+
     const normalizedSearch = search.trim().toLowerCase();
 
     const filtered = tasks.filter((task) => {
@@ -105,19 +113,20 @@ export async function getPaginatedTasks(
     });
 
     const total = filtered.length;
-    const totalPages = Math.ceil(total / pageSize);
+    const totalPages = Math.ceil(total / safePageSize);
+
     const safePage = Math.min(
-        Math.max(1, page),
+        requestedPage,
         Math.max(1, totalPages),
     );
 
-    const start = (safePage - 1) * pageSize;
+    const start = (safePage - 1) * safePageSize;
 
     return {
-        items: filtered.slice(start, start + pageSize),
+        items: filtered.slice(start, start + safePageSize),
         total,
         page: safePage,
-        pageSize,
+        pageSize: safePageSize,
         totalPages,
     };
 }
