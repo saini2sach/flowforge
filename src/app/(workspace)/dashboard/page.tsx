@@ -6,7 +6,17 @@ import {
 
 import TaskSearch from "@/components/dashboard/task-search";
 
-export default async function DashboardPage() {
+
+type DashboardPageProps = {
+  searchParams: Promise<{
+    search?: string;
+  }>;
+};
+
+export default async function DashboardPage({
+  searchParams,
+}: DashboardPageProps) {
+  const { search = "" } = await searchParams;
 
   const [projects, tasks, stats] = await Promise.all([
     getProjects(),
@@ -14,8 +24,20 @@ export default async function DashboardPage() {
     getDashboardStats(),
   ]);
 
+  const normalizedSearch = search.trim().toLowerCase();
+
+  const filteredTasks = normalizedSearch
+    ? tasks.filter(
+      (task) =>
+        task.title.toLowerCase().includes(normalizedSearch) ||
+        task.project.toLowerCase().includes(normalizedSearch),
+    )
+    : tasks;
+
+
   return (
     <main className="mx-auto max-w-7xl space-y-8 p-5 md:p-8">
+      <TaskSearch />
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
           <p className="text-sm text-slate-500">
@@ -110,7 +132,7 @@ export default async function DashboardPage() {
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
-              {tasks.map((task) => (
+              {filteredTasks.map((task) => (
                 <tr key={task.title} className="hover:bg-slate-50">
                   <td className="px-6 py-4">
                     <p className="font-medium">{task.title}</p>
@@ -132,8 +154,6 @@ export default async function DashboardPage() {
           </table>
         </div>
       </section>
-
-      <TaskSearch tasks={tasks} />
 
       <footer className="pb-2 text-center text-xs text-slate-400">
         FlowForge · Project management made clearer.
