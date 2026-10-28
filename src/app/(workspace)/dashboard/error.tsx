@@ -2,8 +2,7 @@
 "use client";
 
 export default function DashboardError({
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    error,
+    // error,
     reset,
 }: {
     error: Error & { digest?: string };

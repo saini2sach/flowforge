@@ -71,3 +71,53 @@ export async function getTasks(): Promise<TaskSummary[]> {
 export async function getDashboardStats(): Promise<DashboardStat[]> {
     return stats;
 }
+
+
+
+import type {
+    PaginatedTasks,
+    TaskFilters,
+    // TaskStatus,
+} from "@/types/dashboard";
+
+export async function getPaginatedTasks(
+    filters: TaskFilters = {},
+): Promise<PaginatedTasks> {
+    const {
+        search = "",
+        status = "All",
+        page = 1,
+        pageSize = 5,
+    } = filters;
+
+    const normalizedSearch = search.trim().toLowerCase();
+
+    const filtered = tasks.filter((task) => {
+        const matchesSearch =
+            !normalizedSearch ||
+            task.title.toLowerCase().includes(normalizedSearch) ||
+            task.project.toLowerCase().includes(normalizedSearch);
+
+        const matchesStatus =
+            status === "All" || task.status === status;
+
+        return matchesSearch && matchesStatus;
+    });
+
+    const total = filtered.length;
+    const totalPages = Math.ceil(total / pageSize);
+    const safePage = Math.min(
+        Math.max(1, page),
+        Math.max(1, totalPages),
+    );
+
+    const start = (safePage - 1) * pageSize;
+
+    return {
+        items: filtered.slice(start, start + pageSize),
+        total,
+        page: safePage,
+        pageSize,
+        totalPages,
+    };
+}

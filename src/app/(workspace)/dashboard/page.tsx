@@ -1,43 +1,61 @@
 import {
   getDashboardStats,
+  getPaginatedTasks,
   getProjects,
-  getTasks,
 } from "@/lib/dashboard/data";
 
 import TaskSearch from "@/components/dashboard/task-search";
-
+import TaskFilters from "@/components/dashboard/task-filters";
+import TaskPagination from "@/components/dashboard/task-pagination";
 
 type DashboardPageProps = {
   searchParams: Promise<{
     search?: string;
+    status?: string;
+    page?: string;
   }>;
 };
 
 export default async function DashboardPage({
   searchParams,
 }: DashboardPageProps) {
-  const { search = "" } = await searchParams;
+  const params = await searchParams;
 
-  const [projects, tasks, stats] = await Promise.all([
+  const validStatuses = [
+    "Todo",
+    "In Progress",
+    "In Review",
+    "Done",
+  ] as const;
+
+  type ValidStatus = (typeof validStatuses)[number];
+
+  const status: ValidStatus | "All" =
+    validStatuses.find((item) => item === params.status) ?? "All";
+
+  const parsedPage = Number(params.page ?? "1");
+  const page =
+    Number.isSafeInteger(parsedPage) && parsedPage > 0
+      ? parsedPage
+      : 1;
+
+  const [projects, stats, taskResult] = await Promise.all([
     getProjects(),
-    getTasks(),
     getDashboardStats(),
+    getPaginatedTasks({
+      search: params.search,
+      status,
+      page,
+      pageSize: 5,
+    }),
   ]);
 
-  const normalizedSearch = search.trim().toLowerCase();
 
-  const filteredTasks = normalizedSearch
-    ? tasks.filter(
-      (task) =>
-        task.title.toLowerCase().includes(normalizedSearch) ||
-        task.project.toLowerCase().includes(normalizedSearch),
-    )
-    : tasks;
 
+  const tasks = taskResult.items;
 
   return (
     <main className="mx-auto max-w-7xl space-y-8 p-5 md:p-8">
-      <TaskSearch />
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
           <p className="text-sm text-slate-500">
@@ -116,11 +134,15 @@ export default async function DashboardPage({
 
       <section className="overflow-hidden rounded-xl border border-slate-200 bg-white">
         <div className="border-b border-slate-200 p-5 md:p-6">
-          <h2 className="font-semibold">Recent tasks</h2>
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <h2 className="text-lg font-semibold">Recent Tasks</h2>
+            <TaskFilters />
+          </div>
           <p className="mt-1 text-sm text-slate-500">
             A snapshot of your team&apos;s latest work.
           </p>
         </div>
+
 
         <div className="overflow-x-auto">
           <table className="w-full min-w-[650px] text-left text-sm">
@@ -132,7 +154,7 @@ export default async function DashboardPage({
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
-              {filteredTasks.map((task) => (
+              {tasks.map((task) => (
                 <tr key={task.title} className="hover:bg-slate-50">
                   <td className="px-6 py-4">
                     <p className="font-medium">{task.title}</p>
@@ -154,6 +176,12 @@ export default async function DashboardPage({
           </table>
         </div>
       </section>
+      <TaskSearch />
+      <TaskPagination
+        page={taskResult.page}
+        totalPages={Math.max(1, taskResult.totalPages)}
+        total={taskResult.total}
+      />
 
       <footer className="pb-2 text-center text-xs text-slate-400">
         FlowForge · Project management made clearer.
