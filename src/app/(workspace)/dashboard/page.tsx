@@ -4,6 +4,8 @@ import {
   getTasks,
 } from "@/lib/dashboard/data";
 
+import TaskSearch from "@/components/dashboard/task-search";
+
 export default async function DashboardPage() {
 
   const [projects, tasks, stats] = await Promise.all([
@@ -130,6 +132,8 @@ export default async function DashboardPage() {
           </table>
         </div>
       </section>
+
+      <TaskSearch tasks={tasks} />
 
       <footer className="pb-2 text-center text-xs text-slate-400">
         FlowForge · Project management made clearer.
